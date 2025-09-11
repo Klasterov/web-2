@@ -7,5 +7,4 @@ class Task {
     this.completed = completed;
   }
 }
-
 module.exports = Task;

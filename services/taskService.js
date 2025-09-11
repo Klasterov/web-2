@@ -25,5 +25,4 @@ module.exports = {
     if (taskIndex === -1) return null;
     const deletedTask = tasks.splice(taskIndex, 1);
     return deletedTask[0];
-  }
-};
+  }};
