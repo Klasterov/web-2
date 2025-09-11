@@ -2,11 +2,11 @@ const userService = require('../services/userService');
 
 module.exports = {
   createUser: (req, res) => {
-    const { name } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Numele' });
+    const { name , email } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Numele si email' });
     }
-    const newUser = userService.createUser(name);
+    const newUser = userService.createUser(name, email);
     res.status(201).json(newUser);
   },
   getUsers: (req, res) => {

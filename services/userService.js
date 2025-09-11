@@ -4,8 +4,8 @@ let users = [];
 let currentId = 1;
 
 module.exports = {
-  createUser: (name) => {
-    const newUser = new User(currentId++, name);
+  createUser: (name , email) => {
+    const newUser = new User(currentId++, name, email);
     users.push(newUser);
     return newUser;
   },
@@ -16,10 +16,11 @@ module.exports = {
     return users.find(u => u.id === id);
   },
 
-  updateUser: (id, name) => {
+ updateUser: (id, name, email) => {
     const user = users.find(u => u.id === id);
     if (!user) return null;
-    user.name = name;
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
     return user;
   },
   deleteUser: (id) => {
