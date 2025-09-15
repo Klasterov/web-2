@@ -1,0 +1,25 @@
+{
+  "dev": {
+    "driver": "pg",
+    "user": "myuser",
+    "password": "mypassword",
+    "host": "localhost",
+    "database": "mydb",
+    "schema": "public"
+  },
+  "test": {
+    "driver": "pg",
+    "user": "test_user",
+    "password": "test_password",
+    "host": "localhost",
+    "database": "test_database"
+  },
+  "production": {
+    "driver": "pg",
+    "user": {"ENV": "DB_USER"},
+    "password": {"ENV": "DB_PASSWORD"},
+    "host": {"ENV": "DB_HOST"},
+    "database": {"ENV": "DB_NAME"},
+    "ssl": true
+  }
+}

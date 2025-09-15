@@ -1,6 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const taskController = require('../controllers/taskController');
+const { validate, Joi } = require('express-validation');
+
+const taskValidation = {
+    body: Joi.object({
+        title: Joi.string()
+        .min(1)
+        .required()
+        .messages({
+            'string.empty': '"title" nu poate fi gol',
+            'any.required': '"title" este obligatoriu'
+        }),
+        description: Joi.string()
+        .optional()
+        .messages({
+            'string.base': '"description" trebuie sa fie un sir de caractere'
+        })
+        ,
+        userId: Joi.number()
+        .integer()
+        .required()
+        .messages({
+            'number.base': '"userId" trebuie sa fie un numar',
+            'number.integer': '"userId" trebuie sa fie un numar intreg',
+            'any.required': '"userId" este obligatoriu'
+        })
+        ,
+    }),
+};
+
+const taskUpdateValidation = {
+    body: Joi.object({
+        title: Joi.string().min(1),
+        description: Joi.string().allow(''),
+        userId: Joi.number().integer(),
+        completed: Joi.boolean(),
+    }),
+};
 
 /**
  * @swagger
@@ -89,7 +126,7 @@ router.get('/user/:userId', taskController.getTasksByUserId);
  *       400:
  *         description: Ошибка валидации
  */
-router.post('/', taskController.createTask);
+router.post('/', validate(taskValidation, {} , {}),taskController.createTask);
 
 /**
  * @swagger
@@ -123,7 +160,7 @@ router.post('/', taskController.createTask);
  *       404:
  *         description: Задача не найдена
  */
-router.put('/:id', taskController.updateTask);
+router.put('/:id', validate(taskUpdateValidation, {} , {}),taskController.updateTask);
 
 /**
  * @swagger

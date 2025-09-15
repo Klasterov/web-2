@@ -1,44 +1,104 @@
-const userService = require('../services/userService');
+const UserService = require('../services/userService');
 
-module.exports = {
-  createUser: (req, res) => {
-    const { name , email } = req.body;
-    if (!name || !email) {
-      return res.status(400).json({ error: 'Numele si email' });
-    }
-    const newUser = userService.createUser(name, email);
-    res.status(201).json(newUser);
-  },
-  getUsers: (req, res) => {
-    const users = userService.getUsers();
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await UserService.getUsers();
     res.json(users);
-  },
-  getUserById: (req, res) => {
-    const userId = parseInt(req.params.id);
-    const user = userService.getUserById(userId);
+  } catch (error) {
+    console.error('Error getting users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await UserService.getUserById(req.params.id);
     if (!user) {
-      return res.status(404).json({ error: 'Userul nu este gasit' });
+      return res.status(404).json({ error: 'User not found' });
     }
     res.json(user);
-  },
-  updateUser: (req, res) => {
-    const userId = parseInt(req.params.id);
-    const { name } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Numele obligatoriu' });
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    console.log('Creating user with data:', req.body);
+    
+    const { name, email } = req.body;
+    
+    const existingUser = await UserService.findUserByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
     }
-    const updatedUser = userService.updateUser(userId, name);
-    if (!updatedUser) {
-      return res.status(404).json({ error: 'Userul nu este gasit' });
+
+    const user = await UserService.createUser(
+      name.trim(),
+      email.toLowerCase().trim()
+    );
+
+    res.status(201).json(user);
+  } catch (error) {
+    console.error('Error creating user:', error);
+    
+    if (error.code === '23505') {
+      return res.status(400).json({ error: 'User with this email already exists' });
     }
+    
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await UserService.getUserById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const { name, email } = req.body;
+    
+    if (email && email !== user.email) {
+      const existingUser = await UserService.findUserByEmail(email);
+      if (existingUser && existingUser.id !== parseInt(req.params.id)) {
+        return res.status(400).json({ error: 'User with this email already exists' });
+      }
+    }
+
+    const updatedUser = await UserService.updateUser(
+      req.params.id,
+      name ? name.trim() : user.name,
+      email ? email.toLowerCase().trim() : user.email
+    );
+
     res.json(updatedUser);
-  },
-  deleteUser: (req, res) => {
-    const userId = parseInt(req.params.id);
-    const deletedUser = userService.deleteUser(userId);
-    if (!deletedUser) {
-      return res.status(404).json({ error: 'Userul nu este gasit' });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    
+    if (error.code === '23505') {
+      return res.status(400).json({ error: 'User with this email already exists' });
     }
-    res.json(deletedUser);
+    
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await UserService.getUserById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const deletedUser = await UserService.deleteUser(req.params.id);
+    res.json({ 
+      message: 'User deleted successfully',
+      user: deletedUser 
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

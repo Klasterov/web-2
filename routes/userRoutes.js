@@ -1,6 +1,44 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const { validate } = require('express-validation');
+const Joi = require('joi');
+
+const userValidation = {
+  body: Joi.object({
+    name: Joi.string()
+      .pattern(/^[a-zA-Zа-яА-ЯёЁ\s]+$/)
+      .min(1)
+      .required()
+      .messages({
+        'string.pattern.base': '"name" poate contine doar litere si spatii',
+        'string.empty': '"name" nu poate fi gol',
+        'any.required': '"name" este obligatoriu'
+      }),
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        'string.email': '"email" trebuie sa fie un email valid',
+        'string.empty': '"email" nu poate fi gol',
+        'any.required': '"email" este obligatoriu'
+      }),
+  }),
+};
+
+const handleValidationErrors = (err, req, res, next) => {
+  if (err && err.error && err.error.isJoi) {
+    const errors = err.error.details.map(detail => ({
+      field: detail.path.join('.'),
+      message: detail.message
+    }));
+    return res.status(400).json({ 
+      error: 'Validation error',
+      details: errors 
+    });
+  }
+  next(err);
+};
 
 /**
  * @swagger
@@ -68,7 +106,7 @@ router.get('/:id', userController.getUserById);
  *       400:
  *         description: Ошибка валидации
  */
-router.post('/', userController.createUser);
+router.post('/', validate(userValidation, {}, { abortEarly: false }), handleValidationErrors, userController.createUser);
 
 /**
  * @swagger
@@ -100,7 +138,7 @@ router.post('/', userController.createUser);
  *       404:
  *         description: Пользователь не найден
  */
-router.put('/:id', userController.updateUser);
+router.put('/:id', validate(userValidation, {}, { abortEarly: false }), handleValidationErrors, userController.updateUser);
 
 /**
  * @swagger

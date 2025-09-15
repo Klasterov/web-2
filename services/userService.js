@@ -1,32 +1,53 @@
-const User = require('../models/userModel');
+const { Pool } = require('pg');
 
-let users = [];
-let currentId = 1;
+const directPool = new Pool({
+  user: 'myuser',
+  host: 'localhost',
+  database: 'mydb',
+  password: 'mypassword',
+  port: 5432,
+});
 
 module.exports = {
-  createUser: (name , email) => {
-    const newUser = new User(currentId++, name, email);
-    users.push(newUser);
-    return newUser;
+  createUser: async (name, email) => {
+    const res = await directPool.query(
+      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
+      [name, email]
+    );
+    return res.rows[0];
   },
-  getUsers: () => {
-    return users;
+  
+  getUsers: async () => {
+    const res = await directPool.query('SELECT * FROM users ORDER BY id');
+    return res.rows;
   },
-  getUserById: (id) => {
-    return users.find(u => u.id === id);
+  
+  getUserById: async (id) => {
+    const res = await directPool.query('SELECT * FROM users WHERE id = $1', [id]);
+    return res.rows[0];
   },
-
- updateUser: (id, name, email) => {
-    const user = users.find(u => u.id === id);
-    if (!user) return null;
-    if (name !== undefined) user.name = name;
-    if (email !== undefined) user.email = email;
-    return user;
+  
+  findUserByEmail: async (email) => {
+    const res = await directPool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+    return res.rows[0];
   },
-  deleteUser: (id) => {
-    const userIndex = users.findIndex(u => u.id === id);
-    if (userIndex === -1) return null;
-    const deletedUser = users.splice(userIndex, 1);
-    return deletedUser[0];
+  
+  updateUser: async (id, name, email) => {
+    const res = await directPool.query(
+      'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
+      [name, email, id]
+    );
+    return res.rows[0];
+  },
+  
+  deleteUser: async (id) => {
+    const res = await directPool.query(
+      'DELETE FROM users WHERE id = $1 RETURNING *',
+      [id]
+    );
+    return res.rows[0];
   }
 };
