@@ -1,0 +1,8 @@
+{
+  "email_required": "Emailul este obligatoriu",
+  "email_invalid": "Format email invalid",
+  "name_required": "Numele este obligatoriu",
+  "user_not_found": "Utilizatorul nu a fost găsit",
+  "task_not_found": "Sarcina nu a fost găsită",
+  "email_exists": "Un utilizator cu acest email există deja"
+}

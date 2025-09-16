@@ -15,11 +15,11 @@ exports.getTaskById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const task = await taskService.getTaskById(id);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
+    if (!task) return res.status(404).json({ message: req.t('validation.task_not_found') });
     res.json(task);
   } catch (error) {
     console.error('Error getting task:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: req.t('errors.server_error') });
   }
 };
 
@@ -30,7 +30,7 @@ exports.getTasksByUserId = async (req, res) => {
     res.json(tasks);
   } catch (error) {
     console.error('Error getting user tasks:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: req.t('errors.server_error') });
   }
 };
 
@@ -40,7 +40,7 @@ exports.createTask = async (req, res) => {
     
     const user = await userService.getUserById(Number(userId));
     if (!user) {
-      return res.status(400).json({ error: 'User not found' });
+      return res.status(400).json({ error: req.t('validation.user_not_found') });
     }
 
     const task = await taskService.createTask(
@@ -52,7 +52,7 @@ exports.createTask = async (req, res) => {
     res.status(201).json(task);
   } catch (error) {
     console.error('Error creating task:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: req.t('errors.server_error') });
   }
 };
 
@@ -64,7 +64,7 @@ exports.updateTask = async (req, res) => {
     if (userId !== undefined) {
       const user = await userService.getUserById(Number(userId));
       if (!user) {
-        return res.status(400).json({ error: 'User not found' });
+        return res.status(400).json({ error: req.t('validation.user_not_found') });
       }
     }
 
@@ -76,11 +76,11 @@ exports.updateTask = async (req, res) => {
       userId ? Number(userId) : null
     );
 
-    if (!task) return res.status(404).json({ message: 'Task not found' });
+    if (!task) return res.status(404).json({ message: req.t('validation.task_not_found') });
     res.json(task);
   } catch (error) {
     console.error('Error updating task:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: req.t('errors.server_error') });
   }
 };
 
@@ -89,10 +89,10 @@ exports.deleteTask = async (req, res) => {
     const id = parseInt(req.params.id);
     const deletedTask = await taskService.deleteTask(id);
     
-    if (!deletedTask) return res.status(404).json({ message: 'Task not found' });
-    res.json({ message: 'Task deleted successfully', task: deletedTask });
+    if (!deletedTask) return res.status(404).json({ message: req.t('validation.task_not_found') });
+    res.json({ message: req.t('validation.task_deleted'), task: deletedTask });
   } catch (error) {
     console.error('Error deleting task:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: req.t('errors.server_error') });
   }
 };

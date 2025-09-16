@@ -1,0 +1,8 @@
+{
+  "email_required": "Email is required",
+  "email_invalid": "Invalid email format",
+  "name_required": "Name is required",
+  "user_not_found": "User not found",
+  "task_not_found": "Task not found",
+  "email_exists": "User with this email already exists"
+}

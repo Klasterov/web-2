@@ -1,0 +1,8 @@
+{
+  "email_required": "Email обязателен",
+  "email_invalid": "Неверный формат email",
+  "name_required": "Имя обязательно",
+  "user_not_found": "Пользователь не найден",
+  "task_not_found": "Задача не найдена",
+  "email_exists": "Пользователь с таким email уже существует"
+}
